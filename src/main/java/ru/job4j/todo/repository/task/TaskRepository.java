@@ -42,7 +42,6 @@ public class TaskRepository {
         return tasks;
     }
 
-
     public Optional<Task> addTask(Task task) {
         Session session = sf.openSession();
         Transaction tx = null;

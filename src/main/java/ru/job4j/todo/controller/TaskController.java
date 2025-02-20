@@ -30,13 +30,8 @@ public class TaskController {
 
     @PostMapping("/tasks/add")
     public String addTask(@ModelAttribute Task task, Model model) {
-        try {
-            taskService.addTask(task);
-            return "redirect:/";
-        } catch (Exception exception) {
-            model.addAttribute("message", exception.getMessage());
-            return "errors/404";
-        }
+        taskService.addTask(task);
+        return "redirect:/";
     }
 
     @GetMapping("/tasks/{id}")
@@ -52,13 +47,13 @@ public class TaskController {
 
     @GetMapping("/tasks/complete/{id}")
     public String completeTaskById(@PathVariable int id, Model model) {
-        Optional<Task> taskOptional = taskService.getTaskById(id);
-        if (taskOptional.isEmpty()) {
+        boolean updated = taskService.markTaskAsDone(id);
+
+        if (!updated) {
             model.addAttribute("message", "Задание с указанным id не найдено");
             return "errors/404";
         }
-        taskOptional.get().setDone(true);
-        taskService.updateTask(taskOptional.get());
+
         return "redirect:/";
     }
 
@@ -74,10 +69,17 @@ public class TaskController {
     }
 
     @PostMapping("/tasks/update")
-    public String updateTask(@ModelAttribute Task task) {
-        taskService.updateTask(task);
+    public String updateTask(@ModelAttribute Task task, Model model) {
+        Optional<Task> updatedTask = taskService.updateTask(task);
+
+        if (updatedTask.isEmpty()) {
+            model.addAttribute("message", "Ошибка: Не удалось обновить задачу.");
+            return "errors/404";
+        }
+
         return "redirect:/";
     }
+
 
     @GetMapping("/tasks/delete/{id}")
     public String deleteTaskById(@PathVariable int id, Model model) {

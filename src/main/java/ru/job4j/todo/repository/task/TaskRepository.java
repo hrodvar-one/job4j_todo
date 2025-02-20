@@ -7,7 +7,7 @@ import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
 
-import java.util.ArrayList;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +20,7 @@ public class TaskRepository {
     public List<Task> getAllTasks() {
         Session session = sf.openSession();
         Transaction tx = null;
-        List<Task> tasks = new ArrayList<>();
+        List<Task> tasks;
 
         try {
             tx = session.beginTransaction();
@@ -56,7 +56,7 @@ public class TaskRepository {
             if (tx != null) {
                 tx.rollback();
             }
-            return Optional.empty();
+            throw e;
         } finally {
             session.close();
         }
@@ -92,7 +92,6 @@ public class TaskRepository {
             if (existingTask != null) {
                 existingTask.setTitle(task.getTitle());
                 existingTask.setDescription(task.getDescription());
-                existingTask.setDone(task.isDone());
                 session.update(existingTask);
                 tx.commit();
                 return Optional.of(existingTask);
@@ -116,15 +115,13 @@ public class TaskRepository {
         try {
             tx = session.beginTransaction();
 
-            Task task = session.get(Task.class, id);
-            if (task != null) {
-                session.delete(task);
-                tx.commit();
-                return true;
-            } else {
-                tx.rollback();
-                return false;
-            }
+            String hql = "DELETE FROM Task WHERE id = :taskId";
+            int deletedCount = session.createQuery(hql)
+                    .setParameter("taskId", id)
+                    .executeUpdate();
+
+            tx.commit();
+            return deletedCount > 0;
         } catch (Exception e) {
             if (tx != null) {
                 tx.rollback();
@@ -138,7 +135,7 @@ public class TaskRepository {
     public List<Task> getCompletedTasks() {
         Session session = sf.openSession();
         Transaction tx = null;
-        List<Task> completedTasks = new ArrayList<>();
+        List<Task> completedTasks;
 
         try {
             tx = session.beginTransaction();
@@ -183,5 +180,30 @@ public class TaskRepository {
         }
 
         return uncompletedTasks;
+    }
+
+    public int updateTaskDoneById(int id) {
+        Session session = sf.openSession();
+        Transaction tx = null;
+        int updatedRows;
+
+        try {
+            tx = session.beginTransaction();
+
+            updatedRows = session.createQuery("UPDATE Task t SET t.done = true WHERE t.id = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+
+        return updatedRows;
     }
 }

@@ -41,4 +41,9 @@ public class TaskService {
     public List<Task> getUncompletedTasks() {
         return taskRepository.getUncompletedTasks();
     }
+
+    public boolean markTaskAsDone(int id) {
+        int updatedRows = taskRepository.updateTaskDoneById(id);
+        return updatedRows > 0;
+    }
 }

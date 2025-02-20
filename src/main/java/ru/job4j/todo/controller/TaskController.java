@@ -80,7 +80,6 @@ public class TaskController {
         return "redirect:/";
     }
 
-
     @GetMapping("/tasks/delete/{id}")
     public String deleteTaskById(@PathVariable int id, Model model) {
         boolean isDeleted = taskService.deleteTaskById(id);

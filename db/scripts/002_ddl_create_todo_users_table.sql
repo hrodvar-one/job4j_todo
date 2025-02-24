@@ -1,0 +1,6 @@
+CREATE TABLE todo_users (
+   id SERIAL PRIMARY KEY,
+   name VARCHAR(25) NOT NULL,
+   login VARCHAR(25) UNIQUE NOT NULL,
+   password VARCHAR(25) NOT NULL
+);

@@ -26,18 +26,13 @@ public class UserRepository {
             tx.commit();
             return Optional.of(user);
         } catch (ConstraintViolationException e) {
-            if (tx != null) {
+            if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
-            return Optional.empty();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
         } finally {
             session.close();
         }
+        return Optional.empty();
     }
 
     public Optional<User> findByLoginAndPassword(String login, String password) {

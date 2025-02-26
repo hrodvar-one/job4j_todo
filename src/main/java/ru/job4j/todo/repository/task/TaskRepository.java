@@ -1,209 +1,110 @@
 package ru.job4j.todo.repository.task;
 
 import lombok.AllArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.repository.CrudRepository;
 
-import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
 @AllArgsConstructor
 public class TaskRepository {
 
-    private final SessionFactory sf;
+    private final CrudRepository crudRepository;
 
+    /**
+     * Получить все задачи.
+     * @return список всех задач.
+     */
     public List<Task> getAllTasks() {
-        Session session = sf.openSession();
-        Transaction tx = null;
-        List<Task> tasks;
-
-        try {
-            tx = session.beginTransaction();
-
-            tasks = session.createQuery(
-                            "FROM Task ORDER BY done DESC, created ASC", Task.class)
-                    .getResultList();
-
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            session.close();
-        }
-
-        return tasks;
+        return crudRepository.query(
+                "FROM Task ORDER BY done DESC, created ASC", Task.class
+        );
     }
 
+    /**
+     * Добавить новую задачу в базу.
+     * @param task новая задача.
+     * @return Optional or user.
+     */
     public Optional<Task> addTask(Task task) {
-        Session session = sf.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-
-            session.save(task);
-
-            tx.commit();
-            return Optional.of(task);
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            session.close();
-        }
+        crudRepository.run(session -> session.persist(task));
+        return Optional.of(task);
     }
 
+    /**
+     * Получить задачу по id.
+     * @param id задачи.
+     * @return Optional or task.
+     */
     public Optional<Task> getTaskById(int id) {
-        Session session = sf.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-
-            Task task = session.get(Task.class, id);
-
-            tx.commit();
-            return Optional.ofNullable(task);
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            session.close();
-        }
+        return crudRepository.optional(
+                "FROM Task WHERE id = :taskId", Task.class,
+                Map.of("taskId", id)
+        );
     }
 
+    /**
+     * Обновить задачу в базе.
+     * @param task задача.
+     * @return Optional or task.
+     */
     public Optional<Task> updateTask(Task task) {
-        Session session = sf.openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-
-            Task existingTask = session.get(Task.class, task.getId());
-            if (existingTask != null) {
-                existingTask.setTitle(task.getTitle());
-                existingTask.setDescription(task.getDescription());
-                session.update(existingTask);
-                tx.commit();
-                return Optional.of(existingTask);
-            } else {
-                tx.rollback();
-                return Optional.empty();
-            }
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            session.close();
-        }
+        crudRepository.run(session -> session.merge(task));
+        return Optional.of(task);
     }
 
+    /**
+     * Удалить задачу по id.
+     * @param id задачи.
+     * @return boolean.
+     */
     public boolean deleteTaskById(int id) {
-        Session session = sf.openSession();
-        Transaction tx = null;
         try {
-            tx = session.beginTransaction();
-
-            String hql = "DELETE FROM Task WHERE id = :taskId";
-            int deletedCount = session.createQuery(hql)
-                    .setParameter("taskId", id)
-                    .executeUpdate();
-
-            tx.commit();
-            return deletedCount > 0;
+            crudRepository.run(
+                    "DELETE FROM Task WHERE id = :taskId",
+                    Map.of("taskId", id)
+            );
+            return true;
         } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            session.close();
+            return false;
         }
     }
 
+    /**
+     * Получить все выполненные задачи.
+     * @return список всех выполненных задач.
+     */
     public List<Task> getCompletedTasks() {
-        Session session = sf.openSession();
-        Transaction tx = null;
-        List<Task> completedTasks;
-
-        try {
-            tx = session.beginTransaction();
-
-            completedTasks = session.createQuery(
-                            "FROM Task WHERE done = true", Task.class)
-                    .getResultList();
-
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            session.close();
-        }
-
-        return completedTasks;
+        return crudRepository.query(
+                "FROM Task WHERE done = true", Task.class
+        );
     }
 
+    /**
+     * Получить все невыполненные задачи.
+     * @return список всех невыполненных задач.
+     */
     public List<Task> getUncompletedTasks() {
-        Session session = sf.openSession();
-        Transaction tx = null;
-        List<Task> uncompletedTasks;
-
-        try {
-            tx = session.beginTransaction();
-
-            uncompletedTasks = session.createQuery(
-                            "FROM Task WHERE done = false", Task.class)
-                    .getResultList();
-
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            session.close();
-        }
-
-        return uncompletedTasks;
+        return crudRepository.query(
+                "FROM Task WHERE done = false", Task.class
+        );
     }
 
+    /**
+     * Установить статус задачи выполненной.
+     * @param id задачи.
+     * @return int.
+     */
     public int updateTaskDoneById(int id) {
-        Session session = sf.openSession();
-        Transaction tx = null;
-        int updatedRows;
-
-        try {
-            tx = session.beginTransaction();
-
-            updatedRows = session.createQuery("UPDATE Task t SET t.done = true WHERE t.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            session.close();
-        }
-
-        return updatedRows;
+        return crudRepository.tx(session -> session.createQuery(
+                "UPDATE Task t SET t.done = true WHERE t.id = :id"
+                )
+                .setParameter("id", id)
+                .executeUpdate());
     }
 }
+

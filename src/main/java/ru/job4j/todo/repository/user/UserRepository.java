@@ -20,17 +20,11 @@ public class UserRepository {
      * @return Optional or user.
      */
     public Optional<User> save(User user) {
-        Optional<User> existingUser = crudRepository.optional(
-                "FROM User WHERE login = :login", User.class,
-                Map.of("login", user.getLogin())
-        );
-
-        if (existingUser.isPresent()) {
+        try {
+            crudRepository.run(session -> session.save(user));
+        } catch (Exception e) {
             return Optional.empty();
         }
-
-        crudRepository.run(session -> session.save(user));
-
         return Optional.of(user);
     }
 

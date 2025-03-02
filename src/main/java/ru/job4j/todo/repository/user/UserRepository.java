@@ -1,6 +1,8 @@
 package ru.job4j.todo.repository.user;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.User;
 import ru.job4j.todo.repository.CrudRepository;
@@ -14,6 +16,8 @@ public class UserRepository {
 
     private final CrudRepository crudRepository;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserRepository.class);
+
     /**
      * Регистрация нового пользователя и сохранение в БД.
      * @param user новый пользователь.
@@ -22,10 +26,11 @@ public class UserRepository {
     public Optional<User> save(User user) {
         try {
             crudRepository.run(session -> session.save(user));
+            return Optional.of(user);
         } catch (Exception e) {
-            return Optional.empty();
+            LOGGER.error("Ошибка при сохранении пользователя", e);
         }
-        return Optional.of(user);
+        return Optional.empty();
     }
 
     /**

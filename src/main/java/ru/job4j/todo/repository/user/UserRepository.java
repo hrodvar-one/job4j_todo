@@ -14,9 +14,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserRepository {
 
-    private final CrudRepository crudRepository;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UserRepository.class);
+
+    private final CrudRepository crudRepository;
 
     /**
      * Регистрация нового пользователя и сохранение в БД.

@@ -20,4 +20,8 @@ public class UserService {
     public Optional<User> findByLoginAndPassword(String login, String password) {
         return userRepository.findByLoginAndPassword(login, password);
     }
+
+    public Optional<User> getUserById(int userId) {
+        return userRepository.getUserById(userId);
+    }
 }

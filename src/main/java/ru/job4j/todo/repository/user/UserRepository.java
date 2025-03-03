@@ -45,4 +45,16 @@ public class UserRepository {
                 Map.of("login", login, "password", password)
         );
     }
+
+    /**
+     * Получение пользователя по id.
+     * @param id пользователя.
+     * @return Optional or user.
+     */
+    public Optional<User> getUserById(int id) {
+        return crudRepository.optional(
+                "FROM User WHERE id = :id", User.class,
+                Map.of("id", id)
+        );
+    }
 }

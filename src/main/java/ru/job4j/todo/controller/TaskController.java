@@ -31,11 +31,7 @@ public class TaskController {
     public String addTask(Model model, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
 
-        if (user != null && user.getId() != 0) {
-            model.addAttribute("userId", user.getId());
-        } else {
-            model.addAttribute("userId", "");
-        }
+        model.addAttribute("userId", user.getId());
 
         return "tasks/add";
     }
@@ -44,11 +40,8 @@ public class TaskController {
     public String addTask(@ModelAttribute Task task,
                           @RequestParam("userId") int userId,
                           Model model) {
+
         Optional<User> userOptional = userService.getUserById(userId);
-        if (userOptional.isEmpty()) {
-            model.addAttribute("message", "Пользователь с указанным id не найден");
-            return "errors/404";
-        }
         task.setUser(userOptional.get());
         taskService.addTask(task);
         return "redirect:/";
@@ -82,10 +75,6 @@ public class TaskController {
                                  Model model,
                                  HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-
-        if (user == null || user.getId() == 0) {
-            return "redirect:/users/login";
-        }
 
         model.addAttribute("userId", user.getId());
 

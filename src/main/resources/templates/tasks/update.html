@@ -18,7 +18,8 @@
 
         <form class="mt-3" th:object="${task}" th:action="@{/tasks/update}" method="post">
 
-            <input type="hidden" name="userId" th:value="${userId}">
+<!--            <input type="hidden" name="userId" th:value="${userId}">-->
+            <input type="hidden" name="userId" th:value="${user.id}">
 
             <input type="hidden" th:field="*{id}"/>
 

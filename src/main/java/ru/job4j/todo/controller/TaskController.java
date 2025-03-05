@@ -28,21 +28,17 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/add")
-    public String addTask(Model model, HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
-
-        model.addAttribute("userId", user.getId());
+    public String addTask() {
 
         return "tasks/add";
     }
 
     @PostMapping("/tasks/add")
     public String addTask(@ModelAttribute Task task,
-                          @RequestParam("userId") int userId,
-                          Model model) {
+                          HttpServletRequest request) {
 
-        Optional<User> userOptional = userService.getUserById(userId);
-        task.setUser(userOptional.get());
+        User user = (User) request.getAttribute("user");
+        task.setUser(user);
         taskService.addTask(task);
         return "redirect:/";
     }
@@ -72,11 +68,7 @@ public class TaskController {
 
     @GetMapping("/tasks/update/{id}")
     public String showUpdatePage(@PathVariable int id,
-                                 Model model,
-                                 HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
-
-        model.addAttribute("userId", user.getId());
+                                 Model model) {
 
         Optional<Task> taskOptional = taskService.getTaskById(id);
         if (taskOptional.isPresent()) {
@@ -90,16 +82,11 @@ public class TaskController {
 
     @PostMapping("/tasks/update")
     public String updateTask(@ModelAttribute Task task,
-                             @RequestParam("userId") int userId,
+                             HttpServletRequest request,
                              Model model) {
 
-        Optional<User> userOptional = userService.getUserById(userId);
-        if (userOptional.isEmpty()) {
-            model.addAttribute("message", "Пользователь с указанным id не найден");
-            return "errors/404";
-        }
-        task.setUser(userOptional.get());
-
+        User user = (User) request.getAttribute("user");
+        task.setUser(user);
         Optional<Task> updatedTask = taskService.updateTask(task);
 
         if (updatedTask.isEmpty()) {

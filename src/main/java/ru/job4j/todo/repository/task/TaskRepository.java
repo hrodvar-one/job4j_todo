@@ -21,7 +21,8 @@ public class TaskRepository {
      */
     public List<Task> getAllTasks() {
         return crudRepository.query(
-                "FROM Task ORDER BY done DESC, created ASC", Task.class
+                "FROM Task t JOIN FETCH t.priority ORDER BY t.done DESC, t.created ASC",
+                Task.class
         );
     }
 

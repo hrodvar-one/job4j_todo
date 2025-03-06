@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 import ru.job4j.todo.service.UserService;
 
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class TaskController {
 
     private final TaskService taskService;
+    private final PriorityService priorityService;
     private final UserService userService;
 
     @GetMapping
@@ -28,17 +31,22 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/add")
-    public String addTask() {
-
+    public String addTask(Model model) {
+        model.addAttribute("priorities", priorityService.getAllPriorities());
         return "tasks/add";
     }
 
     @PostMapping("/tasks/add")
     public String addTask(@ModelAttribute Task task,
+                          @RequestParam("priority") int priorityId,
                           HttpServletRequest request) {
 
         User user = (User) request.getAttribute("user");
+
+        Optional<Priority> priorityOptional = priorityService.getPriorityById(priorityId);
+
         task.setUser(user);
+        task.setPriority(priorityOptional.get());
         taskService.addTask(task);
         return "redirect:/";
     }

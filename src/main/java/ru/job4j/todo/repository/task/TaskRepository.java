@@ -76,22 +76,24 @@ public class TaskRepository {
     }
 
     /**
-     * Получить все выполненные задачи.
+     * Получить все выполненные задачи с приоритетами.
      * @return список всех выполненных задач.
      */
     public List<Task> getCompletedTasks() {
         return crudRepository.query(
-                "FROM Task WHERE done = true", Task.class
+                "FROM Task t JOIN FETCH t.priority WHERE t.done = true ORDER BY t.done DESC, t.created ASC",
+                Task.class
         );
     }
 
     /**
-     * Получить все невыполненные задачи.
+     * Получить все невыполненные задачи с приоритетами.
      * @return список всех невыполненных задач.
      */
     public List<Task> getUncompletedTasks() {
         return crudRepository.query(
-                "FROM Task WHERE done = false", Task.class
+                "FROM Task t JOIN FETCH t.priority WHERE t.done = false ORDER BY t.done DESC, t.created ASC",
+                Task.class
         );
     }
 

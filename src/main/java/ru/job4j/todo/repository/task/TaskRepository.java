@@ -37,13 +37,13 @@ public class TaskRepository {
     }
 
     /**
-     * Получить задачу по id.
+     * Получить задачу по id с приоритетами.
      * @param id задачи.
      * @return Optional or task.
      */
     public Optional<Task> getTaskById(int id) {
         return crudRepository.optional(
-                "FROM Task WHERE id = :taskId", Task.class,
+                "FROM Task t JOIN FETCH t.priority WHERE t.id = :taskId", Task.class,
                 Map.of("taskId", id)
         );
     }

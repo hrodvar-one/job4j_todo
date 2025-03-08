@@ -11,7 +11,6 @@ import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,23 +35,16 @@ public class TaskController {
     }
 
     @PostMapping("/tasks/add")
-    public String addTask(@RequestParam("title") String title,
-                          @RequestParam("description") String description,
-                          @RequestParam("priority") int priorityId,
+    public String addTask(@ModelAttribute Task task,
+                          @RequestParam("priority.id") int priorityId,
                           HttpServletRequest request) {
 
         User user = (User) request.getAttribute("user");
 
         Optional<Priority> priorityOptional = priorityService.getPriorityById(priorityId);
 
-        Task task = Task.builder()
-                .title(title)
-                .description(description)
-                .created(LocalDateTime.now())
-                .done(false)
-                .user(user)
-                .priority(priorityOptional.get())
-                .build();
+        task.setUser(user);
+        task.setPriority(priorityOptional.get());
 
         taskService.addTask(task);
 
@@ -100,10 +92,8 @@ public class TaskController {
     }
 
     @PostMapping("/tasks/update")
-    public String updateTask(@RequestParam("title") String title,
-                             @RequestParam("description") String description,
-                             @RequestParam("priority") int priorityId,
-                             @RequestParam("taskId") int taskId,
+    public String updateTask(@ModelAttribute Task task,
+                             @RequestParam("priority.id") int priorityId,
                              HttpServletRequest request,
                              Model model) {
 
@@ -111,13 +101,8 @@ public class TaskController {
 
         Optional<Priority> priorityOptional = priorityService.getPriorityById(priorityId);
 
-        Optional<Task> existingTaskOptional = taskService.getTaskById(taskId);
-
-        Task task = existingTaskOptional.get();
-        task.setTitle(title);
-        task.setDescription(description);
-        task.setPriority(priorityOptional.get());
         task.setUser(user);
+        task.setPriority(priorityOptional.get());
 
         Optional<Task> updatedTask = taskService.updateTask(task);
 

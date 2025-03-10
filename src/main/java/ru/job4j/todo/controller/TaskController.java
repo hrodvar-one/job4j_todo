@@ -4,14 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.CategoryService;
 import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/")
@@ -20,6 +24,7 @@ public class TaskController {
 
     private final TaskService taskService;
     private final PriorityService priorityService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public String getAllTasks(Model model) {
@@ -30,17 +35,25 @@ public class TaskController {
     @GetMapping("/tasks/add")
     public String addTask(Model model) {
         model.addAttribute("priorities", priorityService.getAllPriorities());
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "tasks/add";
     }
 
     @PostMapping("/tasks/add")
     public String addTask(@ModelAttribute Task task,
+                          @RequestParam List<Integer> categoryIdsList,
                           HttpServletRequest request) {
 
         User user = (User) request.getAttribute("user");
 
-        task.setUser(user);
+        List<Category> categories = new ArrayList<>();
 
+        for (Integer categoryId : categoryIdsList) {
+            categoryService.getCategoryById(categoryId).ifPresent(categories::add);
+        }
+
+        task.setUser(user);
+        task.setCategories(categories);
         taskService.addTask(task);
 
         return "redirect:/";
@@ -74,11 +87,22 @@ public class TaskController {
                                  Model model) {
 
         Optional<Task> taskOptional = taskService.getTaskById(id);
+
         if (taskOptional.isPresent()) {
-            int defaultPriorityId = taskOptional.get().getPriority().getId();
+            Task task = taskOptional.get();
+
+            int defaultPriorityId = task.getPriority().getId();
             model.addAttribute("defaultPriorityId", defaultPriorityId);
             model.addAttribute("task", taskOptional.get());
             model.addAttribute("priorities", priorityService.getAllPriorities());
+            model.addAttribute("categories", categoryService.getAllCategories());
+
+            List<Integer> selectedCategoryIds = task.getCategories().stream()
+                    .map(Category::getId)
+                    .collect(Collectors.toList());
+
+            model.addAttribute("selectedCategoryIds", selectedCategoryIds);
+
             return "tasks/update";
         }
 
@@ -89,12 +113,19 @@ public class TaskController {
     @PostMapping("/tasks/update")
     public String updateTask(@ModelAttribute Task task,
                              HttpServletRequest request,
+                             @RequestParam List<Integer> categoryIdsList,
                              Model model) {
 
         User user = (User) request.getAttribute("user");
 
-        task.setUser(user);
+        List<Category> categories = new ArrayList<>();
 
+        for (Integer categoryId : categoryIdsList) {
+            categoryService.getCategoryById(categoryId).ifPresent(categories::add);
+        }
+
+        task.setUser(user);
+        task.setCategories(categories);
         Optional<Task> updatedTask = taskService.updateTask(task);
 
         if (updatedTask.isEmpty()) {

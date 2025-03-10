@@ -20,24 +20,37 @@
 
             <div class="mb-3">
                 <label for="title" class="form-label"><b>Название</b></label>
-                <input type="text" class="form-control" id="title" name="title" placeholder="Напишите название задания">
+                <input type="text"
+                       class="form-control"
+                       id="title"
+                       name="title"
+                       placeholder="Напишите название задания" required>
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label"><b>Описание</b></label>
                 <textarea class="form-control"
                           id="description"
                           name="description"
-                          rows="25"
-                          placeholder="Опишите подробнее задание">
-                </textarea>
+                          rows="10"
+                          placeholder="Опишите подробнее задание" required></textarea>
             </div>
             <div class="mb-3">
                 <label for="priority" class="form-label"><b>Приоритет</b></label>
-                <select class="form-control" id="priority" name="priority.id">
+                <select class="form-control" id="priority" name="priority.id" required>
                     <option value="" disabled selected>Выберите приоритет</option>
                     <option th:each="priority : ${priorities}"
                             th:value="${priority.id}"
                             th:text="${priority.name}">
+                    </option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="categories" class="form-label"><b>Категории</b></label>
+                <select class="form-control" id="categories" name="categoryIdsList"
+                        multiple required th:attr="size=${categories.size()}">
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id}"
+                            th:text="${category.name}">
                     </option>
                 </select>
             </div>

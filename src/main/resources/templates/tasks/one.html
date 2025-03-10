@@ -30,10 +30,23 @@
             <input type="text" class="form-control" id="priority" name="priority" th:value="${task.priority.name}" readonly>
         </div>
 
+        <div class="mb-3">
+            <label class="form-label"><b>Категории</b></label>
+            <div th:each="category : ${task.categories}">
+                <label>
+                    <input type="text" class="form-control mb-2" th:value="${category.name}" readonly>
+                </label>
+            </div>
+        </div>
+
         <div class="d-flex justify-content-center mt-4">
             <a th:href="@{/tasks/complete/{id}(id=${task.id})}" class="btn btn-success mx-2">Выполнено</a>
             <a th:href="@{/tasks/update/{id}(id=${task.id})}" class="btn btn-warning mx-2">Редактировать</a>
             <a th:href="@{/tasks/delete/{id}(id=${task.id})}" class="btn btn-danger mx-2">Удалить</a>
+        </div>
+
+        <div class="text-center mt-3">
+            <a class="btn btn-secondary" th:href="@{/}">Назад к списку</a>
         </div>
     </div>
 </div>

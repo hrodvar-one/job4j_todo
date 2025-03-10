@@ -16,12 +16,18 @@ public class TaskRepository {
     private final CrudRepository crudRepository;
 
     /**
-     * Получить все задачи.
+     * Получить все задачи с приоритетами и категориями.
      * @return список всех задач.
      */
     public List<Task> getAllTasks() {
         return crudRepository.query(
-                "FROM Task t JOIN FETCH t.priority ORDER BY t.done DESC, t.created ASC",
+                """
+                        SELECT DISTINCT t
+                        FROM Task t
+                        JOIN FETCH t.priority
+                        JOIN FETCH t.categories
+                        ORDER BY t.id, t.done DESC, t.created ASC
+                        """,
                 Task.class
         );
     }
@@ -37,13 +43,13 @@ public class TaskRepository {
     }
 
     /**
-     * Получить задачу по id с приоритетами.
+     * Получить задачу по id с приоритетами и категориями.
      * @param id задачи.
      * @return Optional or task.
      */
     public Optional<Task> getTaskById(int id) {
         return crudRepository.optional(
-                "FROM Task t JOIN FETCH t.priority WHERE t.id = :taskId", Task.class,
+                "FROM Task t JOIN FETCH t.priority LEFT JOIN FETCH t.categories WHERE t.id = :taskId", Task.class,
                 Map.of("taskId", id)
         );
     }
@@ -76,23 +82,37 @@ public class TaskRepository {
     }
 
     /**
-     * Получить все выполненные задачи с приоритетами.
+     * Получить все выполненные задачи с приоритетами и категориями.
      * @return список всех выполненных задач.
      */
     public List<Task> getCompletedTasks() {
         return crudRepository.query(
-                "FROM Task t JOIN FETCH t.priority WHERE t.done = true ORDER BY t.done DESC, t.created ASC",
+                """
+                        SELECT DISTINCT t
+                        FROM Task t
+                        JOIN FETCH t.priority
+                        JOIN FETCH t.categories
+                        WHERE t.done = true
+                        ORDER BY t.done DESC, t.created ASC
+                        """,
                 Task.class
         );
     }
 
     /**
-     * Получить все невыполненные задачи с приоритетами.
+     * Получить все невыполненные задачи с приоритетами и категориями.
      * @return список всех невыполненных задач.
      */
     public List<Task> getUncompletedTasks() {
         return crudRepository.query(
-                "FROM Task t JOIN FETCH t.priority WHERE t.done = false ORDER BY t.done DESC, t.created ASC",
+                """
+                        SELECT DISTINCT t
+                        FROM Task t
+                        JOIN FETCH t.priority
+                        JOIN FETCH t.categories
+                        WHERE t.done = false
+                        ORDER BY t.done DESC, t.created ASC
+                        """,
                 Task.class
         );
     }

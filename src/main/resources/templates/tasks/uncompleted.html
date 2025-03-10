@@ -22,6 +22,7 @@
             <th scope="col">Дата создания</th>
             <th scope="col">Состояние</th>
             <th scope="col">Приоритет</th>
+            <th scope="col">Категория</th>
         </tr>
         </thead>
         <tbody>
@@ -31,6 +32,15 @@
             <td th:text="${#temporals.format(task.created, 'dd.MM.yyyy HH:mm')}"></td>
             <td><span class="badge bg-danger text-white">Не выполнено</span></td>
             <td th:text="${task.priority.name}"></td>
+            <td>
+                <span th:if="${not #lists.isEmpty(task.categories)}">
+                    <span th:each="category, iterStat : ${task.categories}">
+                        <span th:text="${category.name}"></span>
+                        <span th:if="${not iterStat.last}">, </span>
+                     </span>
+                </span>
+                <span th:if="${#lists.isEmpty(task.categories)}">-</span>
+            </td>
         </tr>
         </tbody>
     </table>

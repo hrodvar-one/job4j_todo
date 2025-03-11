@@ -46,11 +46,7 @@ public class TaskController {
 
         User user = (User) request.getAttribute("user");
 
-        List<Category> categories = new ArrayList<>();
-
-        for (Integer categoryId : categoryIdsList) {
-            categoryService.getCategoryById(categoryId).ifPresent(categories::add);
-        }
+        List<Category> categories = categoryService.getCategoriesById(categoryIdsList);
 
         task.setUser(user);
         task.setCategories(categories);

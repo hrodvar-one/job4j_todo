@@ -12,6 +12,8 @@ import ru.job4j.todo.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.TimeZone;
 
 @Controller
 @RequestMapping("/users")
@@ -21,12 +23,20 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/register")
-    public String getRegistrationPage() {
+    public String getRegistrationPage(Model model) {
+        var zones = new ArrayList<TimeZone>();
+        for (String timeId : TimeZone.getAvailableIDs()) {
+            zones.add(TimeZone.getTimeZone(timeId));
+        }
+        model.addAttribute("zones", zones);
         return "users/register";
     }
 
     @PostMapping("/register")
     public String register(Model model, @ModelAttribute User user) {
+        if (user.getTimezone().isEmpty()) {
+            user.setTimezone(TimeZone.getDefault().getID());
+        }
         var savedUser = userService.save(user);
         if (savedUser.isEmpty()) {
             model.addAttribute("message", "Пользователь с таким логином уже существует");

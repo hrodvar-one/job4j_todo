@@ -10,8 +10,11 @@ import ru.job4j.todo.model.User;
 import ru.job4j.todo.service.CategoryService;
 import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
+import ru.job4j.todo.utility.TimeConversionUtility;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,8 +30,12 @@ public class TaskController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public String getAllTasks(Model model) {
-        model.addAttribute("tasks", taskService.getAllTasks());
+    public String getAllTasks(Model model, HttpServletRequest request) {
+
+        User user = (User) request.getAttribute("user");
+        List<Task> tasks = taskService.getAllTasks();
+
+        model.addAttribute("tasks", TimeConversionUtility.timeConversion(user, tasks));
         return "tasks/list";
     }
 
@@ -50,6 +57,7 @@ public class TaskController {
 
         task.setUser(user);
         task.setCategories(categories);
+        task.setCreated(LocalDateTime.now(ZoneId.of("UTC")));
         taskService.addTask(task);
 
         return "redirect:/";
@@ -143,16 +151,22 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/completed")
-    public String getCompletedTasks(Model model) {
+    public String getCompletedTasks(Model model, HttpServletRequest request) {
+
+        User user = (User) request.getAttribute("user");
         List<Task> completedTasks = taskService.getCompletedTasks();
-        model.addAttribute("tasks", completedTasks);
+
+        model.addAttribute("tasks", TimeConversionUtility.timeConversion(user, completedTasks));
         return "tasks/completed";
     }
 
     @GetMapping("/tasks/uncompleted")
-    public String showUncompletedTasks(Model model) {
+    public String showUncompletedTasks(Model model, HttpServletRequest request) {
+
+        User user = (User) request.getAttribute("user");
         List<Task> uncompletedTasks = taskService.getUncompletedTasks();
-        model.addAttribute("tasks", uncompletedTasks);
+
+        model.addAttribute("tasks", TimeConversionUtility.timeConversion(user, uncompletedTasks));
         return "tasks/uncompleted";
     }
 }

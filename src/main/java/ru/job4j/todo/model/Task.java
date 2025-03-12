@@ -27,7 +27,7 @@ public class Task {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "created", nullable = false, updatable = false)
+    @Column(name = "created", updatable = false)
     private LocalDateTime created;
 
     @Column(name = "done")
@@ -51,7 +51,6 @@ public class Task {
 
     @PrePersist
     protected void onCreate() {
-        this.created = LocalDateTime.now();
         this.done = false;
     }
 

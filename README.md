@@ -60,29 +60,37 @@ mvn spring-boot:run
 
 Взаимодействие с приложением:
 
-1. Главная
+1. Страница входа
 
-![Главная](screenshots/list_tasks.png)
+![Страница входа](screenshots/login_page.png)
 
-2. Завершенные задания
+2. Страница регистрации
 
-![Завершенные задания](screenshots/completed_task.png)
+![Страница регистрации](screenshots/registration_page.png)
 
-3. Невыполненные задания
+3. Главная страница
 
-![Невыполненные задания](screenshots/uncompleted_task.png)
+![Главная страница](screenshots/list_page.png)
 
-4. Просмотр выбранного задания
+4. Выполненные задания
 
-![Просмотр выбранного задания](screenshots/preview_task.png)
+![Выполненные задания](screenshots/completed_task_page.png)
 
-5. Добавление нового задания
+5. Невыполненные задания
 
-![Добавление нового задания](screenshots/add_task.png)
+![Невыполненные задания](screenshots/uncompleted_task_page.png)
 
-6. Редактирование выбранного задания
+6. Просмотр выбранного задания
 
-![Редактирование выбранного задания](screenshots/edit_task.png)
+![Просмотр выбранного задания](screenshots/preview_task_page.png)
+
+7. Добавление нового задания
+
+![Добавление нового задания](screenshots/add_task_page.png)
+
+8. Редактирование выбранного задания
+
+![Редактирование выбранного задания](screenshots/edit_task_page.png)
 
 ## Контакты
 

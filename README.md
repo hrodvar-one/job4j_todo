@@ -14,6 +14,7 @@ TODO список - это приложение для управления сп
 ### Технологии используемые в проекте:
 - Java 17
 - Spring boot 2.7.3
+- Hibernate 5.6.11.Final
 - Tomcat
 - Thymeleaf 3.0.15
 - Bootstrap
